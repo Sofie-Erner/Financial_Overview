@@ -1,7 +1,6 @@
 # ----- Simplify Bank Statements -----
 # This script will read through statements and specify their category
-# Categories are based off Test_expenses_categories.cvs currently
-#
+# Categories are based off csv file
 # --------------------------------
 
 # ----- Libraries -----
@@ -9,24 +8,18 @@ import pandas as pd
 import numpy as np
 import os
 from Additional_funcs import check_file
+from Get_expense_categories import GetExpenseCategory
 
-def SimplifyStatement(in_doc,out_doc,exp_cat):
+# ----- Function for simplifying bank statements -----
+def SimplifyStatement(in_doc,out_doc,exp_cat_doc):
 	path = os.path.abspath(os.getcwd()) # path to directory of script
 
 	# ----- Dictionary with Categories for Expenses -----
-	exp_doc = str(path) + "/" + exp_cat # path to csv file
-	check_file(out_doc,"csv")
-	df_exp = pd.read_csv(exp_doc,header=0) # dateframe of expenses categories and examples
-
-	expenses = {}
-	for i in range(len(df_exp)):
-		test_list = np.array(df_exp.loc[i])[1:]
-		test_list = test_list[~pd.isnull(test_list)]
-		
-		expenses[str(df_exp.loc[i][0])] = test_list
+	expenses = GetExpenseCategory(exp_cat_doc) # Dictionary with expense categories, will contain list of key words for each category
 		
 	exp_cat = expenses.keys() # List of expenses catefories
-
+	print(expenses)
+	exit()
 	# ----- Input File -----
 	in_doc = str(path) + "/" + in_doc # path to bank statement (input file)
 	check_file(in_doc,"xlsx")
@@ -66,5 +59,4 @@ def SimplifyStatement(in_doc,out_doc,exp_cat):
 		
 	print(df)
 
-
-SimplifyStatement("tests/Test_bank_statement.test","tests/Test_statement_simplify.test","tests/Test_expenses_categories.test")
+SimplifyStatement("tests/Test_bank_statement.xlsx","tests/Test_statement_simplify.xlsx","tests/Test_expenses_categories.csv")
