@@ -16,10 +16,18 @@ path = os.path.abspath(os.getcwd()) # path to directory of script
 # ----- Functions -----
 def check_excel(filename):
 	# Check if file exists and is an excel file
+
 	if not os.path.isfile(filename):
 		print(filename," is not a file")
-		exit()
-	elif not filename.lower().endswith(('.xlsx','.xls')):
+		
+		txt_in = input("Create this file? [y/n] ")
+		if txt_in == "y":
+			f = open(filename,"x") # Create file
+			f.close()
+		else:
+			print("Error, exiting")
+			exit()
+	if not filename.lower().endswith(('.xlsx','.xls')):
 		print(filename," is not an excel spreadsheet")
 		exit()
 
@@ -47,13 +55,13 @@ out_doc = sys.argv[2] # Output excel file
 # ----- Input File -----
 in_doc = str(path) + "/" + in_doc
 check_excel(in_doc)
-f_in = pd.ExcelFile(in_doc) 
+f_in = pd.ExcelFile(in_doc, engine='openpyxl') 
 print(f_in.sheet_names)
 
 # ----- Output File -----
 out_doc = str(path) + "/" + out_doc
 check_excel(out_doc)
-f_out = pd.ExcelFile(out_doc)
+f_out = pd.ExcelFile(out_doc, engine='openpyxl')
 print(f_out.sheet_names)
 
 # ----- Common Expressions to Replace
