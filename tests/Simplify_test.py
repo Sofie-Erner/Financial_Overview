@@ -1,7 +1,14 @@
 import unittest
 import numpy as np
 import os
+import sys
+
 path = os.path.abspath(os.getcwd()) # path to directory of script
+path_par = os.path.abspath(os.path.join(path, os.pardir)) # path to parent directory
+sys.path.append(path_par)
+
+from Simplify_statement import SimplifyTest
+from Get_expense_categories import GetExpenseCategory
 
 class SimplifyTest(unittest.TestCase):
     """
@@ -11,7 +18,6 @@ class SimplifyTest(unittest.TestCase):
     def test_function(self):
         pass
 
-from Get_expense_categories import GetExpenseCategory
 class ExpenseCategoriesTest(unittest.TestCase):
     """
     ExpenseCategoriesTest class to test the import of expense categories
@@ -19,7 +25,7 @@ class ExpenseCategoriesTest(unittest.TestCase):
     def setUp(self):
         """ Test result of function and list of keys to compare to """
         self.keys_expected = ['entertaintment', 'personal', 'unknown', 'travel', 'groceries', 'eating_out', 'shopping', 'bills']
-        self.dict_result = GetExpenseCategory("tests/Test_expenses_categories.csv")
+        self.dict_result = GetExpenseCategory("Test_expenses_categories.csv")
 
     def test_GetExpenseCategory_dict(self):
         """ Test output is a dictionary """
