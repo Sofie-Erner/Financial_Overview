@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import os
 
+import src
 from src.Additional_funcs import check_file
 
 # ----- Function for to make dictionary for expense categories -----

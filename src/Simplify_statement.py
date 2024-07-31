@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import os
 
+import src
 from src.Additional_funcs import check_file
 from src.Get_expense_categories import GetExpenseCategory
 
@@ -60,4 +61,4 @@ def SimplifyStatement(in_doc,out_doc,exp_cat_doc):
 		
 	print(df)
 
-SimplifyStatement("tests/Test_bank_statement.xlsx","tests/Test_statement_simplify.xlsx","tests/Test_expenses_categories.csv")
+#SimplifyStatement("tests/Test_bank_statement.xlsx","tests/Test_statement_simplify.xlsx","tests/Test_expenses_categories.csv")

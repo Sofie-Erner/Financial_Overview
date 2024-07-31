@@ -6,8 +6,9 @@ import sys
 path = os.path.abspath(os.getcwd()) # path to directory of script
 sys.path.append("../")
 
+import src
 from src.Get_expense_categories import GetExpenseCategory
-#from src.Simplify_statement import SimplifyStatement
+from src.Simplify_statement import SimplifyStatement
 
 class SimplifyTest(unittest.TestCase):
     """
