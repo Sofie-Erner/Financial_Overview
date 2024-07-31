@@ -25,7 +25,7 @@ class ExpenseCategoriesTest(unittest.TestCase):
     def setUp(self):
         """ Test result of function and list of keys to compare to """
         self.keys_expected = ['entertaintment', 'personal', 'unknown', 'travel', 'groceries', 'eating_out', 'shopping', 'bills']
-        self.dict_result = GetExpenseCategory("Test_expenses_categories.csv")
+        self.dict_result = GetExpenseCategory("tests/Test_expenses_categories.csv")
 
     def test_GetExpenseCategory_dict(self):
         """ Test output is a dictionary """
