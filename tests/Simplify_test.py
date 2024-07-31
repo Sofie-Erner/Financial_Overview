@@ -4,11 +4,10 @@ import os
 import sys
 
 path = os.path.abspath(os.getcwd()) # path to directory of script
-path_par = os.path.abspath(os.path.join(path, os.pardir)) # path to parent directory
-sys.path.append(path_par)
+sys.path.append("../")
 
-from Simplify_statement import SimplifyTest
-from Get_expense_categories import GetExpenseCategory
+from src.Get_expense_categories import GetExpenseCategory
+#from src.Simplify_statement import SimplifyStatement
 
 class SimplifyTest(unittest.TestCase):
     """
