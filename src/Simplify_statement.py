@@ -7,8 +7,9 @@
 import pandas as pd
 import numpy as np
 import os
-from Additional_funcs import check_file
-from Get_expense_categories import GetExpenseCategory
+
+from src.Additional_funcs import check_file
+from src.Get_expense_categories import GetExpenseCategory
 
 # ----- Function for simplifying bank statements -----
 def SimplifyStatement(in_doc,out_doc,exp_cat_doc):
@@ -19,7 +20,7 @@ def SimplifyStatement(in_doc,out_doc,exp_cat_doc):
 		
 	exp_cat = expenses.keys() # List of expenses catefories
 	print(expenses)
-	exit()
+	
 	# ----- Input File -----
 	in_doc = str(path) + "/" + in_doc # path to bank statement (input file)
 	check_file(in_doc,"xlsx")

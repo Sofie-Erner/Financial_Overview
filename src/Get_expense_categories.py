@@ -8,7 +8,8 @@
 import pandas as pd
 import numpy as np
 import os
-from Additional_funcs import check_file
+
+from src.Additional_funcs import check_file
 
 # ----- Function for to make dictionary for expense categories -----
 def GetExpenseCategory(exp_cat_doc):
