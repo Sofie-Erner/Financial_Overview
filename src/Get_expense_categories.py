@@ -8,6 +8,8 @@
 import pandas as pd
 import numpy as np
 import os
+import sys
+sys.path.append("../")
 
 import src
 from src.Additional_funcs import check_file
@@ -16,13 +18,14 @@ from src.Additional_funcs import check_file
 def GetExpenseCategory(exp_cat_doc):
     path = os.path.abspath(os.getcwd()) # path to directory of script
     exp_doc = str(path) + "/" + exp_cat_doc # path to csv file
-    check_file(exp_doc,"csv")
-    df_exp = pd.read_csv(exp_doc,header=0) # dateframe of expenses categories and examples
+    empty_file = check_file(exp_doc,"csv")
 
-    if len(df_exp) < 1:
+    if empty_file == 1:
         print("Error: expense categories,",exp_cat_doc,", is empty")
         exit()
 
+    df_exp = pd.read_csv(exp_doc,header=0) # dateframe of expenses categories and examples
+    
     first_col = df_exp.columns.tolist()[0] # Get index for first column
 
     expenses = {} # Dictionary with expense categories, will contain list of key words for each category
