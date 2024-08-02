@@ -99,6 +99,9 @@ def SimplifyStatement(in_doc,exp_cat_doc):
 					data1[1] = cat # note category
 					alloc = 1
 
+			if alloc == 0: # if expense category was not found
+				data1[1] = "unknown"
+
 			out_data.append(data1)
 
 	
