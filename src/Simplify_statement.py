@@ -116,5 +116,3 @@ def SimplifyStatement(in_doc,exp_cat_doc):
 			exit()
 
 	df_out.to_excel(out_doc)
-
-SimplifyStatement("../tests/Test_bank_statement.xlsx","../tests/Test_expenses_categories.csv")
