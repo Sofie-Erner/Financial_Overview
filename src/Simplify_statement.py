@@ -6,6 +6,7 @@
 # ----- Libraries -----
 import pandas as pd
 import numpy as np
+import datetime
 import os
 import sys
 sys.path.append("../")
@@ -68,8 +69,6 @@ def SimplifyStatement(in_doc,exp_cat_doc):
 
 	# ----- Loop Over Data ----- 
 	for i in range(len(df)):
-		line = str(df.loc[i])
-		
 		# --- Get Month
 		if "XXXX" in str(df.loc[i,"Date"]):
 			dates = df.loc[i,"Description"].split(" ")
@@ -85,10 +84,10 @@ def SimplifyStatement(in_doc,exp_cat_doc):
 
 			print(out_doc)
 		
-		elif df.loc[i,"Date"] == "Date":
-			continue # don't do anything for this line
+		elif df.loc[i,"Date"] == "Date": # don't do anything for this line
+			continue
 
-		elif not pd.isnull(df.loc[i,"Balance"]): # 
+		elif not pd.isnull(df.loc[i,"Balance"]): # For lines with expenses
 			data1 = df.loc[i].values.flatten().tolist() # get dataframe row
 			data1[0] = str(data1[0].day) + " " + str(data1[0].month) + " " + str(data1[0].year) #date
 
@@ -102,9 +101,8 @@ def SimplifyStatement(in_doc,exp_cat_doc):
 			if alloc == 0: # if expense category was not found
 				data1[1] = "unknown"
 
-			out_data.append(data1)
+			out_data.append(data1) # add to data
 
-	
 	# ----- Output File -----
 	df_out = pd.DataFrame(data=out_data,columns=out_cols)
 
@@ -118,4 +116,34 @@ def SimplifyStatement(in_doc,exp_cat_doc):
 		if txt_in != "y":
 			exit()
 
-	df_out.to_excel(out_doc)
+	out_writer = pd.ExcelWriter(out_doc, engine="xlsxwriter")
+	df_out.to_excel(out_writer, sheet_name='Sheet1',index=False)
+
+	# ----- Merge balance for dates which are the same
+	out_workbook = out_writer.book
+	out_worksheet = out_writer.sheets['Sheet1']
+
+	merge_format = out_workbook.add_format({'align': 'right', 'valign': 'vcenter'})
+
+	dates = df_out["Date"].tolist()
+	print(dates)
+	date_counts = [(i,dates.count(dates[i])) for i in range(0,len(dates))]
+	print(date_counts)
+
+	col_ix = df_out.columns.get_loc("Balance")
+
+	# merge cells with the same date (dates assumed to be ordered )
+	i = 0
+	while i < len(date_counts):
+		id = date_counts[i][0]
+		count = date_counts[i][1]
+
+		if count > 1: # more than one 
+			# merge "balance" cell for same dates, have value for last expense
+			out_worksheet.merge_range(id+1,col_ix,id+count,col_ix,df_out.loc[id+count-1,"Balance"],merge_format)
+			i = i + count
+		else:
+			i += 1
+			
+	out_writer.close()
+	
