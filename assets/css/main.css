@@ -1,0 +1,39 @@
+/*
+    CSS file for Financial Overview HTML
+    Version 0.0.1
+    Created by Sofie Nordahl Erner
+*/
+
+/* Fonts */
+@font-face {
+    font-family: "Lato";
+    src: url("/c/Users/Sofie/Downloads/Lato-Font");
+  }
+
+/* Basics */
+html, body, h1, h2, h3, h4, h5, h6, p, footer, header, section
+{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: black; 
+    line-height: 1em;
+    font-family: "Lato";
+    text-align: center;
+}
+
+h1 {
+    font-weight: bold;
+    font-size: xx-large;
+    margin: 1em 2em 1em 2em;
+    /* border */
+    border: 5px solid purple;
+    border-radius: 8px;
+    padding: 1em 0em 1em 0em;
+}
