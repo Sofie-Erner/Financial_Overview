@@ -7,7 +7,7 @@
 /* Fonts */
 @font-face {
     font-family: "Lato";
-    src: url("/c/Users/Sofie/Downloads/Lato-Font");
+    src: url("../Lato-Font/Lato-Black.ttf");
   }
 
 /* Basics */
@@ -36,4 +36,17 @@ h1 {
     border: 5px solid purple;
     border-radius: 8px;
     padding: 1em 0em 1em 0em;
+}
+
+/* Columns */
+.column {
+    float: left;
+    width: 50%;
+}
+  
+/* Clear floats after the columns */
+.row:after {
+content: "";
+display: table;
+clear: both;
 }

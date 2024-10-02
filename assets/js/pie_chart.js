@@ -4,25 +4,21 @@ Promise.all([
     d3.csv("./assets/colour_pal.csv") // from https://mk.bcgsc.ca/colorblind/palettes/15.color.blindness.palette.txt
 ])
 .then(function(files) {
-    var data = files[0];
-    var dataColours = files[1];
+    var data = files[0]; // file with financial history
+    var dataColours = files[1]; // file with colours
 
-    /* Get expense categories */
-    const cats = data.columns.slice(4);
+    const cats = data.columns.slice(4); // Get expense categories
     //console.log(cats);
-
-    // Set amount of categories
-    const n_cats = cats.length;
-
+    const n_cats = cats.length; // number of categories
     /* Get sum for each category */
-    let datas = new Array(n_cats); for (let i=0; i<n_cats; ++i) datas[i] = 0;
+    let dataCat = new Array(n_cats); for (let i=0; i<n_cats; ++i) dataCat[i] = 0;
 
     for (var i = 0; i < data.length; i++) { // read through each line
         for (var j = 0; j < n_cats; j++){ // get each category sum
-            datas[j] = datas[j] + parseFloat(data[i][cats[j]]); // add to total sum
+            dataCat[j] = dataCat[j] + parseFloat(data[i][cats[j]]); // add to total sum
         }
     }
-    //console.log(datas);
+    //console.log(dataCat);
 
     /* Make colour pallette */
     var palette = [];
@@ -37,6 +33,7 @@ Promise.all([
     }
     //console.log(palette);
 
+    /* --------- Pie Chart --------- */
     /* Get canvas to draw on */
     var ctx = document.getElementById("pie").getContext("2d") 
     
@@ -45,17 +42,22 @@ Promise.all([
         labels: cats,
         datasets: [{
             label: 'Finance Categories',
-            data: datas,
+            data: dataCat,
             hoverOffset: 1,
             backgroundColor: function(context) { // asign colours from palette
                 return palette[context.dataIndex % palette.length];
-            }
-        }]
+            }}]
     };
 
     /* Make pie cart */
     const chart = new Chart(ctx, {
         type: 'pie',
         data: catData,
+        options: {
+            legend: {
+                display: true,
+                position: "right",
+                title: "Categories"
+            }}
     });
 });
