@@ -7,13 +7,34 @@
 <html>
     <head>
         <!-- link to css file -->
-		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/main.css" /> 
+        <!-- for making charts -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+        <!-- for importing csv files -->
+        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+        <!-- header for page -->
+        <title> Financial Overview </title>
 	</head>
 
     <br>
     <!-- Title -->
-    <h1> 
-        Financial Overview
-    </h1>
+    <body>
+        <h1> 
+            Financial Overview
+        </h1>
+
+        <div class="row">
+            <div class="column">
+                <!-- Balance History -->
+
+            </div>
+            <div class="column">
+                <canvas id="pie">
+                    <script src="assets/js/pie_chart.js"></script>
+                </canvas>
+            </div>
+        </div> 
+
+    </body>
 
 </html>
