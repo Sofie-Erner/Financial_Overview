@@ -4,9 +4,13 @@
 # --------------------------------
 
 # ----- Libraries -----
+import openpyxl.utils
+import openpyxl.utils.dataframe
 import pandas as pd
 import numpy as np
 import datetime
+import openpyxl
+from openpyxl.styles import Alignment
 import os
 import sys
 sys.path.append("../")
@@ -16,19 +20,19 @@ from src.Additional_funcs import check_file
 from src.Get_expense_categories import GetExpenseCategory
 
 # ----- Function for simplifying bank statements -----
-def SimplifyStatement(in_doc,exp_cat_doc):
+def SimplifyStatement(in_doc,exp_cat_doc,out_doc):
 	path = os.path.abspath(os.getcwd()) # path to directory of script
 
 	# ----- Variables -----
-	out_doc = "" # name of output file
+	out_date = "" # dates for bank statement
 	out_cols = ["Date","Category","Money In","Money Out","Balance"] # columns of output file
 	out_data = [] # list wil contain data for output file
 
 	# ----- Dictionary with Categories for Expenses -----
 	expenses = GetExpenseCategory(exp_cat_doc) # Dictionary with expense categories, will contain list of key words for each category
 		
-	exp_cat = expenses.keys() # List of expenses catefories
-	print(expenses)
+	exp_cat = expenses.keys() # List of expenses categories
+	#print(expenses)
 	
 	# ----- Input File -----
 	in_doc = str(path) + "/" + in_doc # path to bank statement (input file)
@@ -65,8 +69,6 @@ def SimplifyStatement(in_doc,exp_cat_doc):
 	for expr in common_expr:
 		df.replace(expr,"", inplace=True, regex=True)
 		
-	#print(df)
-
 	# ----- Loop Over Data ----- 
 	for i in range(len(df)):
 		# --- Get Month
@@ -75,15 +77,8 @@ def SimplifyStatement(in_doc,exp_cat_doc):
 			date1 = dates[0].split("/")
 			date2 = dates[2].split("/")
 
-			if int(date1[2]) == int(date2[2]) and int(date1[1]) == int(date2[1]): # same month and year
-				out_doc = date1[1] + "_" + "-".join(date2)
-			elif int(date1[2]) == int(date2[2]): # same year
-				out_doc = "-".join(date1[:2]) + "_" + "-".join(date2)
-			else: # different years
-				out_doc = "-".join(date1) + "_" + "-".join(date2)
+			out_date = '-'.join(date1) + "_" + "-".join(date2)
 
-			print(out_doc)
-		
 		elif df.loc[i,"Date"] == "Date": # don't do anything for this line
 			continue
 
@@ -93,57 +88,92 @@ def SimplifyStatement(in_doc,exp_cat_doc):
 
 			# Find expense category
 			alloc = 0 # whether it's been allocated
+
 			for cat in expenses: # for each category
 				if any(word in data1[1] for word in expenses[cat]): # if description in categories
 					data1[1] = cat # note category
 					alloc = 1
 
 			if alloc == 0: # if expense category was not found
-				data1[1] = "unknown"
+				if not pd.isnull(df.loc[i,"Money in"]):
+					data1[1] = "income"
+				else:
+					data1[1] = "unknown"
 
 			out_data.append(data1) # add to data
 
 	# ----- Output File -----
-	df_out = pd.DataFrame(data=out_data,columns=out_cols)
+	out_doc = str(path) + "/" + out_doc # path to output simplified bank statement
+	empty_file = check_file(out_doc,"xlsx") # check file
 
-	out_doc = str(path) + "/" + out_doc + ".xlsx" # path to output simplified bank statement
-	empty_file = check_file(out_doc,"xlsx")
-
-	if empty_file == 0:
+	if empty_file == 0: # if file exists
 		print("Output file ",out_doc," is not empty")
 
-		txt_in = input("The file will be overwritten, want to continue? [y/n]")
+		txt_in = input("The file will be appended, want to continue? [y/n]")
 		if txt_in != "y":
+			print("'No' selected, exiting")
 			exit()
 
-	out_writer = pd.ExcelWriter(out_doc, engine="xlsxwriter")
-	df_out.to_excel(out_writer, sheet_name='Sheet1',index=False)
+		out_workbook = openpyxl.load_workbook(filename=out_doc) # open file with append
+	else: # if file does not exist
+		out_workbook = openpyxl.Workbook() # open new excel file
+
+
+	out_sheets = out_workbook.sheetnames # get sheets
+
+	# Check if dates already in file
+	if out_date in out_sheets:
+		print("Dates ",out_date," already in file.")
+		txt_in = input("The content will be overwritten, want to continue? [y/n]")
+		if txt_in != "y":
+			print("'No' selected, exiting")
+			exit()
+
+	del out_workbook[out_date] # remove sheet to be re-written
+	out_worksheet = out_workbook.create_sheet(out_date) # create new sheet
+	out_sheets = out_workbook.sheetnames # update sheets
+	
+	# Add new sheet 
+	out_workbook.active = out_workbook.sheetnames.index(out_date) # change active sheet to newly added
+	out_worksheet = out_workbook.active
+	
+	# ---- Output dataframe
+	df_out = pd.DataFrame(data=out_data,columns=out_cols) # make data into dataframe
+
+	# Change date format
+	dates = df_out["Date"].tolist()
+	dates = [ "/".join(dates[i].split(" ")) for i in range(0,len(dates)) ]
+	df_out.update(pd.DataFrame({'Date':dates}))
+	
+	for r in openpyxl.utils.dataframe.dataframe_to_rows(df_out, index=True, header=True): #add dataframe
+		out_worksheet.append(r)
+	
+	# remove extra rows and columns inserted
+	out_worksheet.delete_rows(2) # delete empty second row
+	out_worksheet.delete_cols(1) # delete first column with row numbers
 
 	# ----- Merge balance for dates which are the same
-	out_workbook = out_writer.book
-	out_worksheet = out_writer.sheets['Sheet1']
-
-	merge_format = out_workbook.add_format({'align': 'right', 'valign': 'vcenter'})
-
-	dates = df_out["Date"].tolist()
-	print(dates)
 	date_counts = [(i,dates.count(dates[i])) for i in range(0,len(dates))]
-	print(date_counts)
 
-	col_ix = df_out.columns.get_loc("Balance")
+	col_ix = df_out.columns.get_loc("Balance")  + 1 # index from 1 
 
 	# merge cells with the same date (dates assumed to be ordered )
 	i = 0
 	while i < len(date_counts):
-		id = date_counts[i][0]
+		id = date_counts[i][0] + 2 # indexing from 1 plus column heads
 		count = date_counts[i][1]
 
 		if count > 1: # more than one 
 			# merge "balance" cell for same dates, have value for last expense
-			out_worksheet.merge_range(id+1,col_ix,id+count,col_ix,df_out.loc[id+count-1,"Balance"],merge_format)
-			i = i + count
+			out_worksheet.merge_cells(start_row=id,start_column=col_ix,end_row=id+count-1,end_column=col_ix)
+			cell = out_worksheet.cell(row=id,column=col_ix) # get merged cell
+			cell.value = str(df_out.loc[id+count-3,"Balance"]) # remove extra rows, assign correct balance
+			cell.alignment = Alignment(vertical='center',horizontal='right')
+
+			i = i + count # move to next cell after merge
 		else:
-			i += 1
-			
-	out_writer.close()
-	
+			i += 1 # no merge
+
+
+	print("Bank statement for ",out_date," added")		
+	out_workbook.save(out_doc) # save and close file
